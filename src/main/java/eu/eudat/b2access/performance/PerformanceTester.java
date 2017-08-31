@@ -57,21 +57,11 @@ public class PerformanceTester {
         }
         
         //Process results
+        Statistics stats = new Statistics();
         for(Tester t : testers) {
-            printStats(t.getStatistics());
+            stats.add(t.getStatistics());
         }
         
-    }
-    
-    public void printStats(Map<String, Statistic> statistics) {
-        printStat("get", statistics);
-        printStat("render", statistics);
-        printStat("authn", statistics);
-        printStat("total", statistics);
-    }
-    
-    public void printStat(String key, Map<String, Statistic> statistics) {
-        System.out.println(key+": "+statistics.get(key).getDurationInMs()+"ms.");
-    }
-    
+        System.out.println(stats.toString());
+    } 
 }
