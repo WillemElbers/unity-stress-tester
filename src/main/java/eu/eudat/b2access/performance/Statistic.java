@@ -23,7 +23,7 @@ public class Statistic {
     }
     
     public long getDelta() {
-        return this.t2 = this.t1;
+        return this.t2 - this.t1;
     }
     
     public double getDurationInMs() {
