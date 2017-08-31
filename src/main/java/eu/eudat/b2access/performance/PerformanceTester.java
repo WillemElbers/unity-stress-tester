@@ -17,9 +17,17 @@ public class PerformanceTester {
         String password = "blaaat";        
         String displayName = "test@willemelbers.nl";
         String url = "https://unity.eudat-aai.fz-juelich.de:8443/home/home";
+        
+        //TODO: process command line arguments
+        
         Logger logger = Logger.getLogger("");
         logger.setLevel(Level.OFF);
-        new PerformanceTester(url, username, password, displayName).setThreads(5).setNumTestsPerThreads(20).run();
+        
+        new PerformanceTester(url, username, password, displayName)
+                .setOutputformat(OutputFormat.PRETTY)
+                .setThreads(2)
+                .setNumTestsPerThreads(2)
+                .run();
     }
     
     private final String username;
@@ -87,7 +95,7 @@ public class PerformanceTester {
      * per thread.
      */
     public void run() {
-        System.out.println(String.format("Running %d threads, %d test per thread totalling %d tests.", numThreads, numTestsPerThread, numThreads*numTestsPerThread));
+        System.out.println(String.format("Running %d threads with %d test(s) per thread, totalling %d tests.", numThreads, numTestsPerThread, numThreads*numTestsPerThread));
         
         //Create all testers
         Tester[] testers = new Tester[this.numThreads];
@@ -172,7 +180,7 @@ public class PerformanceTester {
      * @param msElapsed 
      */
     public void printPretty(Statistics statsTotal, Statistics statsGet, Statistics statsRender, Statistics statsAuthn, double msElapsed) {
-        System.out.println(String.format("threads: %d, tests: %d, total tests:%d, time elapsed: %.4f", numThreads, numTestsPerThread, numThreads*numTestsPerThread, msElapsed));
+        //System.out.println(String.format("threads: %d, tests: %d, total tests:%d, time elapsed: %.4f", numThreads, numTestsPerThread, numThreads*numTestsPerThread, msElapsed));
         System.out.println(String.format("%5s %10s %10s %10s %10s", "", "Total", "Get", "Render", "Authn"));
         System.out.println(String.format("%5s %10.2f %10.2f %10.2f %10.2f", "min", statsTotal.getMin(), statsGet.getMin(), statsRender.getMin(), statsAuthn.getMin()));
         System.out.println(String.format("%5s %10.2f %10.2f %10.2f %10.2f", "max", statsTotal.getMax(), statsGet.getMax(), statsRender.getMax(), statsAuthn.getMax()));
