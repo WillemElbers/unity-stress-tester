@@ -66,6 +66,13 @@ public class PerformanceTester {
     }
     
     private static void displayHelp(boolean ok) {
+        System.out.println("Usage: java -jar b2access-performance-1.0-SNAPSHOT-jar-with-dependencies.jar <options>");
+        System.out.println("");
+        System.out.println("Options:");
+        System.out.println("  -b|--binary   Path the google chrome binary.");
+        System.out.println("  -d|--driver   Path the google chrome driver.");
+        System.out.println("  -o|--output   Specify the output format. Supported formats: TSV, PRETTY.");
+        System.out.println("  -h|--help     Display this help.");
         //TODO: display help
         if (ok) {
             System.exit(0);
