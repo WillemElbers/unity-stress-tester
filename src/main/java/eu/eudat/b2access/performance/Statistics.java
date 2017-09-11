@@ -68,14 +68,22 @@ public class Statistics {
      * @return the min
      */
     public double getMin() {
-        return min;
+        if (min == Double.MAX_VALUE) {
+            return 0.0;
+        } else {
+            return min;
+        }
     }
 
     /**
      * @return the max
      */
     public double getMax() {
-        return max;
+        if (max == Double.MIN_VALUE) {
+            return 0.0;
+        } else {
+            return max;
+        }
     }
 
     /**
@@ -86,6 +94,11 @@ public class Statistics {
     }
     
     public double getAvg() {
-        return getSum()/getValues().size();
+        double avg = getSum()/getValues().size();
+        if (avg == Double.NaN) {
+            return 0.0;
+        } else {
+            return avg; 
+        }
     }
 }

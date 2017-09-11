@@ -18,6 +18,9 @@ public class PerformanceTester {
         String displayName = "test@willemelbers.nl";
         String url = "https://unity.eudat-aai.fz-juelich.de:8443/home/home";
         
+        int numThreads = 1;
+        int numTestsPerThread = 1;
+                
         //TODO: process command line arguments
         
         Logger logger = Logger.getLogger("");
@@ -25,8 +28,8 @@ public class PerformanceTester {
         
         new PerformanceTester(url, username, password, displayName)
                 .setOutputformat(OutputFormat.PRETTY)
-                .setThreads(2)
-                .setNumTestsPerThreads(2)
+                .setThreads(numThreads)
+                .setNumTestsPerThreads(numTestsPerThread)
                 .run();
     }
     

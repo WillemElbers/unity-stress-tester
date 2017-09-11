@@ -31,9 +31,7 @@ public class Tester implements Runnable {
         this.username = username;
         this.password = password;
         this.displayName = displayName;
-        this.numTests = numTests;
-        
-        
+        this.numTests = numTests;  
     }
     
     protected WebDriver createDriver() {
@@ -41,8 +39,10 @@ public class Tester implements Runnable {
         System.setProperty("webdriver.chrome.silentOutput", "true");
    
 	ChromeOptions options = new ChromeOptions();
+        options.setBinary("/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary");
         options.addArguments("--log-level=3");
         options.addArguments("--silent");
+        options.addArguments("--headless");
        
         //DesiredCapabilities capabilities = DesiredCapabilities.chrome();
         //capabilities.setCapability("chrome.verbose", false);
@@ -98,8 +98,8 @@ public class Tester implements Runnable {
                     this.statistics.add(stats);
 
             } catch(Exception ex) {
-                System.out.println("Error: "+ex.getMessage());
-                System.out.println("Source:");
+                System.out.println("Error: \n"+ex.getMessage());
+                System.out.println("Source: \n");
                 System.out.println(driver.getPageSource());
             } finally {
                 if(driver != null) {
