@@ -21,6 +21,19 @@ to perform stress tests on an EUDAT B2ACCESS instance.
 
 Currently the instructions provided are targeting a Centos 7 installation.
 
+=== Install Chrome driver
+
+The selenium google chrome driver [2] is required to provide the interaction
+between selenium and the headless google chrome browser. Check [2] for the 
+latest version and download link.
+
+Installation instructions:
+[source,sh]
+----
+wget https://chromedriver.storage.googleapis.com/2.32/chromedriver_linux64.zip
+unzip chromedriver_linux64.zip
+----
+
 === Google Chrome
 
 Install latest google chrome stable, for headless support [1] version 59 or higher is required, 
@@ -52,4 +65,5 @@ To be filled in
 
 == References
 
-1. https://developers.google.com/web/updates/2017/04/headless-chrome[Headless google chrome]
+1. https://developers.google.com/web/updates/2017/04/headless-chrome[Headless Google Chrome]
+2. https://sites.google.com/a/chromium.org/chromedriver[Selenium Chrome Driver]

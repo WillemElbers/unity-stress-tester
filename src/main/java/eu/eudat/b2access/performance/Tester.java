@@ -1,5 +1,7 @@
 package eu.eudat.b2access.performance;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ public class Tester implements Runnable {
     private final String displayName;
     private final List<Map<String, Statistic>> statistics = new ArrayList<>(); 
     private int numTests = 1;
+    private String driverBinaryPath = "/usr/bin/google-chrome";
             
     public Tester(String url, String username, String password, String displayName, int numTests) {
         this.url = url;
@@ -34,12 +37,20 @@ public class Tester implements Runnable {
         this.numTests = numTests;  
     }
     
+    public Tester setDriverBinaryPath(String path) {
+        if(!Files.exists(Paths.get(path))) { 
+            throw new IllegalArgumentException("Google chrom driver binary not found: "+path);
+        }
+        this.driverBinaryPath = path;
+        return this;
+    }
+    
     protected WebDriver createDriver() {
         //System.setProperty("webdriver.chrome.args", "--disable-logging");
         System.setProperty("webdriver.chrome.silentOutput", "true");
    
 	ChromeOptions options = new ChromeOptions();
-        options.setBinary("/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary");
+        options.setBinary(driverBinaryPath);//"/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary");
         options.addArguments("--log-level=3");
         options.addArguments("--silent");
         options.addArguments("--headless");

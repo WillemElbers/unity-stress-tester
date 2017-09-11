@@ -17,29 +17,73 @@ public class PerformanceTester {
         String password = "blaaat";        
         String displayName = "test@willemelbers.nl";
         String url = "https://unity.eudat-aai.fz-juelich.de:8443/home/home";
+        String driverPath = "/Users/wilelb/Downloads/chromedriver";
         
         int numThreads = 1;
         int numTestsPerThread = 1;
-                
-        //TODO: process command line arguments
         
-        Logger logger = Logger.getLogger("");
-        logger.setLevel(Level.OFF);
-        
-        new PerformanceTester(url, username, password, displayName)
+        //Initialize performance tester
+        PerformanceTester tester = 
+            new PerformanceTester(url, username, password, displayName)
                 .setOutputformat(OutputFormat.PRETTY)
                 .setThreads(numThreads)
-                .setNumTestsPerThreads(numTestsPerThread)
-                .run();
+                .setNumTestsPerThreads(numTestsPerThread);
+                
+        //Customize tester based on command line arguments
+        if(args.length > 0) {
+            for(String arg : args) {
+                if(arg.contains("=")) {
+                    String[] keyValuePair = arg.split("=");
+                    switch(keyValuePair[0]) {                        
+                        case "-d":
+                        case "--driver": 
+                            tester.setDriverPath(keyValuePair[1]);
+                            break;
+                        case "-b":
+                        case "--binary":
+                            tester.setBinaryPath(keyValuePair[1]); 
+                            break;
+                        case "-o":
+                        case "--output": 
+                            tester.setOutputFormat(keyValuePair[1]); 
+                            break;
+                        case "-h":
+                        case "--help":
+                            displayHelp(true);
+                            break;
+                        default:
+                            displayHelp(false);
+                            break;
+                    }
+                }
+            }
+        }
+
+        //Start the performance tests
+        Logger logger = Logger.getLogger("");
+        logger.setLevel(Level.OFF);
+        tester.run();
     }
     
-    private final String username;
-    private final String password;   
+    private static void displayHelp(boolean ok) {
+        //TODO: display help
+        if (ok) {
+            System.exit(0);
+        } else {
+            System.exit(1);
+        }
+    }
+    
+    private String username;
+    private String password;   
     private final String displayName;
-    private final String url;
+    private String url;
     
     private int numThreads = 1;
     private int numTestsPerThread = 1;
+    
+    private String driverPath;
+    private String binaryPath;
     
     private OutputFormat format = OutputFormat.TSV;
     
@@ -55,9 +99,34 @@ public class PerformanceTester {
         this.username = username;
         this.password = password;
         this.displayName = displayName;
-        System.setProperty("webdriver.chrome.driver", "/Users/wilelb/Downloads/chromedriver");
+        
     }
 
+    public PerformanceTester setUrl(String url) {
+        this.url = url;
+        return this;
+    }
+    
+    public PerformanceTester setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+    
+    public PerformanceTester setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+    
+    public PerformanceTester setDriverPath(String path) {
+        this.driverPath = path;
+        return this;
+    }
+    
+    public PerformanceTester setBinaryPath(String path) {
+        this.binaryPath = path;
+        return this;
+    }
+    
     /**
      * Set the number of threads to use. Each thread will manage its own 
      * webdriver.
@@ -82,6 +151,10 @@ public class PerformanceTester {
         return this;
     }
     
+    public PerformanceTester setOutputFormat(String format) {
+        return this.setOutputformat(OutputFormat.valueOf(format));
+    }
+    
     /**
      * Set the output format used when printing results.
      * 
@@ -98,12 +171,18 @@ public class PerformanceTester {
      * per thread.
      */
     public void run() {
+        System.setProperty("webdriver.chrome.driver", driverPath);
+        
         System.out.println(String.format("Running %d threads with %d test(s) per thread, totalling %d tests.", numThreads, numTestsPerThread, numThreads*numTestsPerThread));
         
         //Create all testers
         Tester[] testers = new Tester[this.numThreads];
         for(int i = 0; i < this.numThreads; i++) {
             testers[i] = new Tester(url, username, password, displayName, this.numTestsPerThread);
+            //Customize tester configuration
+            if(this.driverPath != null && !this.driverPath.isEmpty()) {
+                testers[i].setDriverBinaryPath(binaryPath);
+            }
         };
         
         //Start all tester threads
