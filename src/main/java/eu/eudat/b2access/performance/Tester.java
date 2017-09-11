@@ -28,13 +28,15 @@ public class Tester implements Runnable {
     private final List<Map<String, Statistic>> statistics = new ArrayList<>(); 
     private int numTests = 1;
     private String driverBinaryPath = "/usr/bin/google-chrome";
-            
+    private boolean silent;
+    
     public Tester(String url, String username, String password, String displayName, int numTests) {
         this.url = url;
         this.username = username;
         this.password = password;
         this.displayName = displayName;
         this.numTests = numTests;  
+        this.silent = true;
     }
     
     public Tester setDriverBinaryPath(String path) {
@@ -44,15 +46,20 @@ public class Tester implements Runnable {
         this.driverBinaryPath = path;
         return this;
     }
+    public Tester setSilent(boolean silent) {
+        this.silent = silent;
+        return this;
+    }
     
-    protected WebDriver createDriver() {
-        //System.setProperty("webdriver.chrome.args", "--disable-logging");
-        System.setProperty("webdriver.chrome.silentOutput", "true");
-   
+    protected WebDriver createDriver() {        
+        System.setProperty("webdriver.chrome.silentOutput", this.silent ? "true" : "false");
+        
 	ChromeOptions options = new ChromeOptions();
         options.setBinary(driverBinaryPath);//"/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary");
         options.addArguments("--log-level=3");
-        options.addArguments("--silent");
+        if(this.silent) {
+            options.addArguments("--silent");
+        }        
         options.addArguments("--headless");
        
         //DesiredCapabilities capabilities = DesiredCapabilities.chrome();

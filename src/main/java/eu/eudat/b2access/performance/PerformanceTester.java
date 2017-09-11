@@ -50,6 +50,10 @@ public class PerformanceTester {
                     case "--output": 
                         tester.setOutputFormat(keyValuePair[1]); 
                         break;
+                    case "-v":
+                    case "--verbose":
+                        tester.setSilent(false);
+                        break;
                     case "-h":
                     case "--help":
                         displayHelp(true);
@@ -80,7 +84,7 @@ public class PerformanceTester {
         System.out.println("  -d|--driver   Path the google chrome driver.");
         System.out.println("  -o|--output   Specify the output format. Supported formats: TSV, PRETTY.");
         System.out.println("  -h|--help     Display this help.");
-        //TODO: display help
+        
         if (ok) {
             System.exit(0);
         } else {
@@ -98,7 +102,7 @@ public class PerformanceTester {
     
     private String driverPath;
     private String binaryPath;
-    
+    private boolean silent;
     private OutputFormat format = OutputFormat.TSV;
     
     /**
@@ -113,7 +117,7 @@ public class PerformanceTester {
         this.username = username;
         this.password = password;
         this.displayName = displayName;
-        
+        this.silent = true;
     }
 
     public PerformanceTester setUrl(String url) {
@@ -141,6 +145,11 @@ public class PerformanceTester {
         return this;
     }
     
+    public PerformanceTester setSilent(boolean silent) {
+        this.silent = silent;
+        return this;
+    }
+     
     /**
      * Set the number of threads to use. Each thread will manage its own 
      * webdriver.
@@ -200,6 +209,7 @@ public class PerformanceTester {
             if(this.driverPath != null && !this.driverPath.isEmpty()) {
                 testers[i].setDriverBinaryPath(binaryPath);
             }
+            testers[i].setSilent(silent);
         };
         
         //Start all tester threads
