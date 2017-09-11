@@ -32,37 +32,44 @@ public class PerformanceTester {
         //Customize tester based on command line arguments
         if(args.length > 0) {
             for(String arg : args) {
+                String[] keyValuePair = new String[]{arg};
                 if(arg.contains("=")) {
-                    String[] keyValuePair = arg.split("=");
-                    switch(keyValuePair[0]) {                        
-                        case "-d":
-                        case "--driver": 
-                            tester.setDriverPath(keyValuePair[1]);
-                            break;
-                        case "-b":
-                        case "--binary":
-                            tester.setBinaryPath(keyValuePair[1]); 
-                            break;
-                        case "-o":
-                        case "--output": 
-                            tester.setOutputFormat(keyValuePair[1]); 
-                            break;
-                        case "-h":
-                        case "--help":
-                            displayHelp(true);
-                            break;
-                        default:
-                            displayHelp(false);
-                            break;
-                    }
+                    keyValuePair = arg.split("=");
                 }
+                
+                switch(keyValuePair[0]) {                        
+                    case "-d":
+                    case "--driver": 
+                        tester.setDriverPath(keyValuePair[1]);
+                        break;
+                    case "-b":
+                    case "--binary":
+                        tester.setBinaryPath(keyValuePair[1]); 
+                        break;
+                    case "-o":
+                    case "--output": 
+                        tester.setOutputFormat(keyValuePair[1]); 
+                        break;
+                    case "-h":
+                    case "--help":
+                        displayHelp(true);
+                        break;
+                    default:
+                        displayHelp(false);
+                        break;
+                }                
             }
         }
 
         //Start the performance tests
         Logger logger = Logger.getLogger("");
         logger.setLevel(Level.OFF);
-        tester.run();
+        try {
+            tester.run();  
+        } catch(Exception ex) {
+            System.err.println(ex.getMessage());
+            displayHelp(false);
+        }
     }
     
     private static void displayHelp(boolean ok) {
@@ -178,6 +185,9 @@ public class PerformanceTester {
      * per thread.
      */
     public void run() {
+        if(driverPath == null || driverPath.isEmpty()) {
+            throw new IllegalArgumentException("Driver path is required");
+        }
         System.setProperty("webdriver.chrome.driver", driverPath);
         
         System.out.println(String.format("Running %d threads with %d test(s) per thread, totalling %d tests.", numThreads, numTestsPerThread, numThreads*numTestsPerThread));
