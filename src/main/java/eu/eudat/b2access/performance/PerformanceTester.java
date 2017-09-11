@@ -73,8 +73,10 @@ public class PerformanceTester {
         }
 
         //Start the performance tests
-        Logger logger = Logger.getLogger("");
-        logger.setLevel(Level.OFF);
+        if(tester.isSilent()) {
+            Logger logger = Logger.getLogger("");
+            logger.setLevel(Level.OFF);
+        }
         try {
             tester.run();  
         } catch(Exception ex) {
@@ -131,6 +133,9 @@ public class PerformanceTester {
         this.type = Type.CHROME;
     }
 
+    public boolean isSilent() {
+        return silent;
+    }
     public PerformanceTester setType(String type) {
         return setType(Type.valueOf(type));
     }

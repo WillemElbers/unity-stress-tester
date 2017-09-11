@@ -20,7 +20,7 @@ public class FirefoxTester extends AbstractTester {
     public WebDriver createDriver() {
         File binaryPath = new File(driverBinaryPath);
         FirefoxBinary firefoxBinary = new FirefoxBinary(binaryPath);
-        firefoxBinary.addCommandLineOptions("--headless");
+        //firefoxBinary.addCommandLineOptions("--headless");
         return new FirefoxDriver(firefoxBinary, new FirefoxProfile());
     }
 }
