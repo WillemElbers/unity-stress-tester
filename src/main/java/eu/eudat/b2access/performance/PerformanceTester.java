@@ -1,5 +1,8 @@
 package eu.eudat.b2access.performance;
 
+import eu.eudat.b2access.performance.test.ChromeTester;
+import eu.eudat.b2access.performance.test.FirefoxTester;
+import eu.eudat.b2access.performance.test.Tester;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -38,6 +41,10 @@ public class PerformanceTester {
                 }
                 
                 switch(keyValuePair[0]) {                        
+                    case "-t":
+                    case "--type":
+                        tester.setType(keyValuePair[1]);
+                        break;
                     case "-d":
                     case "--driver": 
                         tester.setDriverPath(keyValuePair[1]);
@@ -83,6 +90,8 @@ public class PerformanceTester {
         System.out.println("  -b|--binary   Path the google chrome binary.");
         System.out.println("  -d|--driver   Path the google chrome driver.");
         System.out.println("  -o|--output   Specify the output format. Supported formats: TSV, PRETTY.");
+        System.out.println("  -v|--verbose  Verbose logging.");
+        System.out.println("  -t|--type     Driver type. Supported alues: CHROME, FIREFOX.");
         System.out.println("  -h|--help     Display this help.");
         
         if (ok) {
@@ -104,6 +113,7 @@ public class PerformanceTester {
     private String binaryPath;
     private boolean silent;
     private OutputFormat format = OutputFormat.TSV;
+    private Type type;
     
     /**
      * 
@@ -118,8 +128,18 @@ public class PerformanceTester {
         this.password = password;
         this.displayName = displayName;
         this.silent = true;
+        this.type = Type.CHROME;
     }
 
+    public PerformanceTester setType(String type) {
+        return setType(Type.valueOf(type));
+    }
+    
+    public PerformanceTester setType(Type type) {
+        this.type = type;
+        return this;
+    }
+    
     public PerformanceTester setUrl(String url) {
         this.url = url;
         return this;
@@ -197,20 +217,39 @@ public class PerformanceTester {
         if(driverPath == null || driverPath.isEmpty()) {
             throw new IllegalArgumentException("Driver path is required");
         }
-        System.setProperty("webdriver.chrome.driver", driverPath);
+        if(binaryPath == null || binaryPath.isEmpty()) {
+            throw new IllegalArgumentException("Binary path is required");
+        }
+        
+        switch(type) {
+            case CHROME: 
+                System.setProperty("webdriver.chrome.driver", driverPath);
+                break;
+            case FIREFOX:
+                System.setProperty("webdriver.gecko.driver", driverPath);
+                break;
+        }
+        
         
         System.out.println(String.format("Running %d threads with %d test(s) per thread, totalling %d tests.", numThreads, numTestsPerThread, numThreads*numTestsPerThread));
         
         //Create all testers
         Tester[] testers = new Tester[this.numThreads];
         for(int i = 0; i < this.numThreads; i++) {
-            testers[i] = new Tester(url, username, password, displayName, this.numTestsPerThread);
+            switch(type) {
+                case CHROME:
+                    testers[i] = new ChromeTester(url, username, password, displayName, this.numTestsPerThread);
+                    break;
+                case FIREFOX:
+                    testers[i] = new FirefoxTester(url, username, password, displayName, this.numTestsPerThread);
+                    break;
+            }            
             //Customize tester configuration
-            if(this.driverPath != null && !this.driverPath.isEmpty()) {
+            if(this.binaryPath != null && !this.binaryPath.isEmpty()) {
                 testers[i].setDriverBinaryPath(binaryPath);
             }
             testers[i].setSilent(silent);
-        };
+        }
         
         //Start all tester threads
         long t1 = System.nanoTime();

@@ -1,5 +1,6 @@
-package eu.eudat.b2access.performance;
+package eu.eudat.b2access.performance.test;
 
+import eu.eudat.b2access.performance.Statistic;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -9,9 +10,6 @@ import java.util.Map;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -19,18 +17,18 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  *
  * @author wilelb
  */
-public class Tester implements Runnable {
+public abstract class AbstractTester implements Tester, Runnable {
     
-    private final String url;
-    private final String username;
-    private final String password;   
-    private final String displayName;
-    private final List<Map<String, Statistic>> statistics = new ArrayList<>(); 
-    private int numTests = 1;
-    private String driverBinaryPath = "/usr/bin/google-chrome";
-    private boolean silent;
+    protected final String url;
+    protected final String username;
+    protected final String password;   
+    protected final String displayName;
+    protected final List<Map<String, Statistic>> statistics = new ArrayList<>(); 
+    protected int numTests = 1;
+    protected String driverBinaryPath;
+    protected boolean silent;
     
-    public Tester(String url, String username, String password, String displayName, int numTests) {
+    public AbstractTester(String url, String username, String password, String displayName, int numTests) {
         this.url = url;
         this.username = username;
         this.password = password;
@@ -39,35 +37,31 @@ public class Tester implements Runnable {
         this.silent = true;
     }
     
-    public Tester setDriverBinaryPath(String path) {
+    @Override
+    public AbstractTester setDriverBinaryPath(String path) {
         if(!Files.exists(Paths.get(path))) { 
-            throw new IllegalArgumentException("Google chrom driver binary not found: "+path);
+            throw new IllegalArgumentException("Selenium driver binary not found: "+path);
         }
         this.driverBinaryPath = path;
         return this;
     }
-    public Tester setSilent(boolean silent) {
+    
+    @Override
+    public AbstractTester setSilent(boolean silent) {
         this.silent = silent;
         return this;
     }
     
-    protected WebDriver createDriver() {        
-        System.setProperty("webdriver.chrome.silentOutput", this.silent ? "true" : "false");
-        
-	ChromeOptions options = new ChromeOptions();
-        options.setBinary(driverBinaryPath);//"/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary");
-        options.addArguments("--log-level=3");
-        if(this.silent) {
-            options.addArguments("--silent");
-        }        
-        options.addArguments("--headless");
-       
-        //DesiredCapabilities capabilities = DesiredCapabilities.chrome();
-        //capabilities.setCapability("chrome.verbose", false);
-        //capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-        //return new ChromeDriver(capabilities);
-        return new ChromeDriver(options);
+    /**
+     * @return the statistics
+     */
+    @Override
+    public List<Map<String, Statistic>> getStatistics() {
+        return statistics;
     }
+    
+    @Override
+    public abstract WebDriver createDriver();
     
     @Override
     public void run() {
@@ -125,12 +119,5 @@ public class Tester implements Runnable {
                 }
             }
         }
-    }
-
-    /**
-     * @return the statistics
-     */
-    public List<Map<String, Statistic>> getStatistics() {
-        return statistics;
     }
 }
