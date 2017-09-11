@@ -1,0 +1,55 @@
+= B2ACCESS performance test client
+:caution-caption: ☡ CAUTION
+:important-caption: ❗ IMPORTANT
+:note-caption: 🛈 NOTE
+:sectanchors:
+:sectlinks:
+:sectnumlevels: 6
+:sectnums:
+:source-highlighter: pygments
+:tip-caption: 💡 TIP
+:toc-placement: preamble
+:toc:
+:warning-caption: ⚠ WARNING
+
+This project aims to provide a java based command line client which can be used
+to perform stress tests on an EUDAT B2ACCESS instance.
+
+== Installation
+
+=== CENTOS 
+
+Currently the instructions provided are targeting a Centos 7 installation.
+
+=== Google Chrome
+
+Install latest google chrome stable, for headless support [1] version 59 or higher is required, 
+with the following command:
+[source,sh]
+----
+https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+----
+
+=== Java 8.0
+
+Install openjdk 1.8.0 with the following command:
+[source,sh]
+----
+yum install java-1.8.0-openjdk
+----
+
+=== Other requirements
+
+Other required tools: maven, git, ..., can be installed with the following command:
+[source,sh]
+----
+yum install maven git
+----
+
+== Usage
+
+To be filled in
+
+== References
+
+1. https://developers.google.com/web/updates/2017/04/headless-chrome[Headless google chrome]
