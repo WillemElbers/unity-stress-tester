@@ -20,11 +20,11 @@ public class ChromeTester extends AbstractTester {
         
 	ChromeOptions options = new ChromeOptions();
         options.setBinary(driverBinaryPath);//"/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary");
-        options.addArguments("--log-level=3");
         if(this.silent) {
+            options.addArguments("--log-level=3");
             options.addArguments("--silent");
         }        
-        options.addArguments("--headless");
+        //options.addArguments("--headless");
        
         //DesiredCapabilities capabilities = DesiredCapabilities.chrome();
         //capabilities.setCapability("chrome.verbose", false);
