@@ -56,7 +56,7 @@ yum install java-1.8.0-openjdk
 Other required tools: maven, git, ..., can be installed with the following command:
 [source,sh]
 ----
-yum install maven git
+yum install unzip maven git
 ----
 
 == Usage
