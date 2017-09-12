@@ -61,6 +61,9 @@ public class PerformanceTester {
                     case "--verbose":
                         tester.setSilent(false);
                         break;
+                    case "--headless":
+                        tester.setHeadless(true);
+                        break;
                     case "-h":
                     case "--help":
                         displayHelp(true);
@@ -71,12 +74,21 @@ public class PerformanceTester {
                 }                
             }
         }
-
-        //Start the performance tests
+        
+        java.util.logging.Logger.getLogger("").setLevel(Level.WARNING);
+        java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.WARNING);
+        /*
         if(tester.isSilent()) {
             Logger logger = Logger.getLogger("");
-            logger.setLevel(Level.OFF);
+            logger.setLevel(Level.WARNING);
+            java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.WARNING);
+        } else {
+            Logger logger = Logger.getLogger("");
+            logger.setLevel(Level.FINE);
+            java.util.logging.Logger.getLogger("org.openqa.selenium").setLevel(Level.FINE);
         }
+        */
+        //Start the performance tests
         try {
             tester.run();  
         } catch(Exception ex) {
@@ -89,12 +101,13 @@ public class PerformanceTester {
         System.out.println("Usage: java -jar b2access-performance-1.0-SNAPSHOT-jar-with-dependencies.jar <options>");
         System.out.println("");
         System.out.println("Options:");
-        System.out.println("  -b|--binary   Path the google chrome binary.");
-        System.out.println("  -d|--driver   Path the google chrome driver.");
-        System.out.println("  -o|--output   Specify the output format. Supported formats: TSV, PRETTY.");
-        System.out.println("  -v|--verbose  Verbose logging.");
-        System.out.println("  -t|--type     Driver type. Supported alues: CHROME, FIREFOX.");
-        System.out.println("  -h|--help     Display this help.");
+        System.out.println("  -b|--binary     Path the google chrome binary.");
+        System.out.println("  -d|--driver     Path the google chrome driver.");
+        System.out.println("     --headless   Ru in headless mode.");
+        System.out.println("  -o|--output     Specify the output format. Supported formats: TSV, PRETTY.");
+        System.out.println("  -v|--verbose    Verbose logging.");
+        System.out.println("  -t|--type       Driver type. Supported alues: CHROME, FIREFOX.");
+        System.out.println("  -h|--help       Display this help.");
         
         if (ok) {
             System.exit(0);
@@ -116,6 +129,7 @@ public class PerformanceTester {
     private boolean silent;
     private OutputFormat format = OutputFormat.TSV;
     private Type type;
+    private boolean headless;
     
     /**
      * 
@@ -131,11 +145,13 @@ public class PerformanceTester {
         this.displayName = displayName;
         this.silent = true;
         this.type = Type.CHROME;
+        this.headless = false;
     }
 
     public boolean isSilent() {
         return silent;
     }
+    
     public PerformanceTester setType(String type) {
         return setType(Type.valueOf(type));
     }
@@ -175,6 +191,11 @@ public class PerformanceTester {
         return this;
     }
      
+    public PerformanceTester setHeadless(boolean headless) {
+        this.headless = headless;
+        return this;
+    }
+    
     /**
      * Set the number of threads to use. Each thread will manage its own 
      * webdriver.
@@ -226,6 +247,14 @@ public class PerformanceTester {
             throw new IllegalArgumentException("Binary path is required");
         }
         
+        System.out.println("Configuration:");
+        System.out.println("\tType: "+this.type);
+        System.out.println("\tDriver: "+this.driverPath);
+        System.out.println("\tBinary: "+this.binaryPath);
+        System.out.println("\tHeadless: "+this.headless);
+        System.out.println("\tVerbose: "+!this.silent);
+        System.out.println(String.format("Running %d threads with %d test(s) per thread, totalling %d tests.", numThreads, numTestsPerThread, numThreads*numTestsPerThread));
+        
         switch(type) {
             case CHROME: 
                 System.setProperty("webdriver.chrome.driver", driverPath);
@@ -234,9 +263,6 @@ public class PerformanceTester {
                 System.setProperty("webdriver.gecko.driver", driverPath);
                 break;
         }
-        
-        
-        System.out.println(String.format("Running %d threads with %d test(s) per thread, totalling %d tests.", numThreads, numTestsPerThread, numThreads*numTestsPerThread));
         
         //Create all testers
         Tester[] testers = new Tester[this.numThreads];
@@ -254,6 +280,7 @@ public class PerformanceTester {
                 testers[i].setDriverBinaryPath(binaryPath);
             }
             testers[i].setSilent(silent);
+            testers[i].setHeadless(headless);
         }
         
         //Start all tester threads

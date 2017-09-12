@@ -1,12 +1,17 @@
 package eu.eudat.b2access.performance.test;
 
 import eu.eudat.b2access.performance.Statistic;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -19,14 +24,18 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  */
 public abstract class AbstractTester implements Tester, Runnable {
     
+    protected int numTests;
     protected final String url;
     protected final String username;
     protected final String password;   
     protected final String displayName;
-    protected final List<Map<String, Statistic>> statistics = new ArrayList<>(); 
-    protected int numTests = 1;
     protected String driverBinaryPath;
     protected boolean silent;
+    protected boolean headless;
+    
+    //Keep track of test state and statistics
+    protected final List<Map<String, Statistic>> statistics = new ArrayList<>(); 
+    protected Result result;
     
     public AbstractTester(String url, String username, String password, String displayName, int numTests) {
         this.url = url;
@@ -35,6 +44,8 @@ public abstract class AbstractTester implements Tester, Runnable {
         this.displayName = displayName;
         this.numTests = numTests;  
         this.silent = true;
+        this.headless = false;
+        this.result = Result.UNKOWN;
     }
     
     @Override
@@ -52,6 +63,12 @@ public abstract class AbstractTester implements Tester, Runnable {
         return this;
     }
     
+    @Override
+    public AbstractTester setHeadless(boolean headless) {
+        this.headless = headless;
+        return this;
+    }
+    
     /**
      * @return the statistics
      */
@@ -63,8 +80,13 @@ public abstract class AbstractTester implements Tester, Runnable {
     @Override
     public abstract WebDriver createDriver();
     
+    
+    public abstract void checkVersionString(String version) throws IllegalStateException;
+    
     @Override
     public void run() {
+        checkVersion();
+        
         for(int i = 0; i < numTests; i++) {
             Map<String, Statistic> stats = new HashMap<>();
             stats.put("total", new Statistic("total"));
@@ -79,6 +101,8 @@ public abstract class AbstractTester implements Tester, Runnable {
                     driver.get(this.url);
                     stats.get("get").stop();
 
+                    System.out.println("Source before render:\n"+driver.getPageSource());
+                    
                     stats.get("render").start();
                     (new WebDriverWait(driver, 30)).until(new ExpectedCondition<Boolean>() {
                         @Override
@@ -89,6 +113,8 @@ public abstract class AbstractTester implements Tester, Runnable {
                     });
                     stats.get("render").stop();
 
+                    System.out.println("Source after render:\n"+driver.getPageSource());
+                    
                     WebElement elementUsername = driver.findElement(By.id("AuthenticationUI.username"));
                     WebElement elementPassword = driver.findElement(By.id("WebPasswordRetrieval.password"));
                     WebElement elementAuthenticateButton = driver.findElement(By.id("AuthenticationUI.authnenticateButton"));
@@ -118,6 +144,24 @@ public abstract class AbstractTester implements Tester, Runnable {
                     driver.quit();
                 }
             }
+        }
+    }
+    
+    protected void checkVersion() {
+        ProcessBuilder pb = new ProcessBuilder(driverBinaryPath, "--version");
+        try {
+            Process p = pb.start();
+            String stdout = read(p.getInputStream());
+            String stderr = read(p.getErrorStream());
+            checkVersionString(stdout);
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    protected static String read(InputStream input) throws IOException {
+        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(input))) {
+            return buffer.lines().collect(Collectors.joining("\n"));
         }
     }
 }

@@ -12,6 +12,8 @@ import org.openqa.selenium.WebDriver;
 public interface Tester extends Runnable {
     public AbstractTester setDriverBinaryPath(String path);
     public AbstractTester setSilent(boolean silent);
-    public List<Map<String, Statistic>> getStatistics();
+    public AbstractTester setHeadless(boolean headless);
+    
     public WebDriver createDriver();    
+    public List<Map<String, Statistic>> getStatistics();
 }
