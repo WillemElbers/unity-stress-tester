@@ -21,7 +21,44 @@ to perform stress tests on an EUDAT B2ACCESS instance.
 
 Currently the instructions provided are targeting a Centos 7 installation.
 
-=== Install Chrome driver
+==== Base requirements
+
+Other required tools: maven, git, ..., can be installed with the following command:
+[source,sh]
+----
+yum install unzip maven git
+----
+
+===== Java 8.0
+
+Install openjdk 1.8.0 with the following command:
+[source,sh]
+----
+yum install java-1.8.0-openjdk
+----
+
+=====  X virtual framebuffer
+
+When running the tests in windowed mode (not headless), an in-memory display 
+server [3] is required to run graphical applications.
+
+[source,sh]
+----
+yum install xorg-x11-server-Xvfb
+----
+
+==== Google Chrome
+
+===== Browser
+
+Install latest google chrome stable, for headless support [1] version 59 or higher is required, 
+with the following command:
+[source,sh]
+----
+https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+----
+
+===== Install Chrome webdriver
 
 The selenium google chrome driver [2] is required to provide the interaction
 between selenium and the headless google chrome browser. Check [2] for the 
@@ -34,36 +71,61 @@ wget https://chromedriver.storage.googleapis.com/2.32/chromedriver_linux64.zip
 unzip chromedriver_linux64.zip
 ----
 
-=== Google Chrome
+==== Firefox
 
-Install latest google chrome stable, for headless support [1] version 59 or higher is required, 
-with the following command:
+===== Browser
+
+===== Gecko webdriver
+
+== Performance test client
+
+=== Build from source
+
 [source,sh]
 ----
-https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
-----
-
-=== Java 8.0
-
-Install openjdk 1.8.0 with the following command:
-[source,sh]
-----
-yum install java-1.8.0-openjdk
-----
-
-=== Other requirements
-
-Other required tools: maven, git, ..., can be installed with the following command:
-[source,sh]
-----
-yum install unzip maven git
+git clone
+cd
+mvn clean install
 ----
 
 == Usage
 
 To be filled in
 
+
+== Known Issues
+
+=== Headless chrome not working
+
+Symptom: When running chrome in headless mode the tests fail with an empty html skeleton
+send by the server. 
+
+Explanation: This is caused by missing functionality to handle the client certificate
+request send by B2ACCESS.
+
+Example output from the chromedriver.log:
+[source,sh]
+----
+[4.035][DEBUG]: DEVTOOLS COMMAND Page.navigate (id=12) {
+   "url": "https://unity.eudat-aai.fz-juelich.de:8443/home/home"
+}
+...
+[4.934][DEBUG]: DEVTOOLS EVENT Log.entryAdded {
+   "entry": {
+      "level": "error",
+      "networkRequestId": "93574.1",
+      "source": "network",
+      "text": "Failed to load resource: net::ERR_SSL_CLIENT_AUTH_CERT_NEEDED",
+      "timestamp": 1505207036850.29,
+      "url": "https://unity.eudat-aai.fz-juelich.de:8443/home/home"
+   }
+}
+----
+
+Solution: None, don't run in headless mode until this issue is fixed in chrome / chromium.
+
 == References
 
 1. https://developers.google.com/web/updates/2017/04/headless-chrome[Headless Google Chrome]
 2. https://sites.google.com/a/chromium.org/chromedriver[Selenium Chrome Driver]
+3. http://elementalselenium.com/tips/38-headless[Xvfb]
