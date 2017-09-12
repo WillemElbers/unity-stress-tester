@@ -1,13 +1,12 @@
 package eu.eudat.b2access.performance.test;
 
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
-import sun.util.logging.PlatformLogger;
+
 
 /**
  * https://github.com/SeleniumHQ/selenium/wiki/FirefoxDriver
